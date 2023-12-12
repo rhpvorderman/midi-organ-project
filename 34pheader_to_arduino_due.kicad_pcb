@@ -637,6 +637,8 @@
     )
   )
 
+  (gr_rect (start 227.33 64.77) (end 232.41 67.31)
+    (stroke (width 0.12) (type default)) (fill none) (layer "F.SilkS") (tstamp a1ad1cf4-7cbc-41cd-842a-4bddf8b8f504))
   (gr_rect (start 206 19) (end 235 78)
     (stroke (width 0.05) (type default)) (fill none) (layer "Edge.Cuts") (tstamp d865130a-469b-4e6b-bcfd-74b83da8fee8))
   (gr_text "WayWayWay" (at 209.55 25.4 90) (layer "B.SilkS") (tstamp 670f81fa-d9c4-44b1-b303-f2b08822cc06)
@@ -706,6 +708,9 @@
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_text "25" (at 233.68 27.94) (layer "F.SilkS") (tstamp 8f086509-684a-4174-b88f-caa72ef9d8a4)
+    (effects (font (size 1 1) (thickness 0.15)))
+  )
+  (gr_text "GND" (at 225.425 66.04) (layer "F.SilkS") (tstamp 9893c889-45e9-4e8a-a80e-baa4b0f21d63)
     (effects (font (size 1 1) (thickness 0.15)))
   )
   (gr_text "43" (at 233.68 50.8) (layer "F.SilkS") (tstamp a67d2f77-0a57-4236-9297-6474aae55217)
