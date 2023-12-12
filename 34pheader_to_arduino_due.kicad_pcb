@@ -639,6 +639,9 @@
 
   (gr_rect (start 206 19) (end 235 78)
     (stroke (width 0.05) (type default)) (fill none) (layer "Edge.Cuts") (tstamp d865130a-469b-4e6b-bcfd-74b83da8fee8))
+  (gr_text "WayWayWay" (at 209.55 25.4 90) (layer "B.SilkS") (tstamp 670f81fa-d9c4-44b1-b303-f2b08822cc06)
+    (effects (font (size 1 1) (thickness 0.15)) (justify left bottom mirror))
+  )
 
   (segment (start 231.14 63.5) (end 229.87 64.77) (width 0.25) (layer "B.Cu") (net 1) (tstamp 04fccf62-cb2b-4bf9-b2a3-d898ccfdd24d))
   (segment (start 226.06 64.77) (end 218.44 72.39) (width 0.25) (layer "B.Cu") (net 1) (tstamp 8286d6af-0a3f-4070-a290-d05866f091b0))
