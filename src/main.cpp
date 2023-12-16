@@ -1,3 +1,31 @@
+/**
+ * @file main.cpp
+ * @author Ruben Vorderman (rubenvorderman@xs4all.nl)
+ * @brief Code to run a 30 pedal keyboard on an arduino due.
+ * @date 2023-12-16
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ * The code works as follows
+ * 1. Each pin is coupled to a midi pitch. 
+ * 2. All pins are set to input pullup mode. 
+ * 3. All pins trigger an interrupt. 
+ * 4. The interrupt routine checks the pin states and if something is changed
+ *    sends a midi event. 
+ * 5. The main loop puts the microcontroller in sleep mode. It waits for
+ *    interrupts and does not use power.
+ * 
+ * Since the interrupt routine can only run one at a time, there is a 
+ * possibility that the latency for multiple keypresses becomes too much. 
+ * Given that the wakeup from sleep mode takes about 10 microseconds, this 
+ * should not be the case. 
+ * 
+ * The advantage of this method that only power is used when pins change state. 
+ * So pressing down a key for two seconds only uses power for the press and the 
+ * letting go. A polling method where each key is checked every x milliseconds, 
+ * does use power on every poll.
+ */
+
 #include <Arduino.h>
 #include <MIDIUSB.h>
 #include <pitchToNote.h>
@@ -51,6 +79,14 @@ static const struct PinAndPitch PINS_AND_PITCHES[NUMBER_OF_KEYS] = {
 };
  
 
+/**
+ * @brief Convenience function to send a MIDI event.
+ * 
+ * @param event 
+ * @param channel 
+ * @param pitch 
+ * @param velocity 
+ */
 static inline void sendMidiEvent(uint8_t event, uint8_t channel, uint8_t pitch, 
                                  uint8_t velocity) {
     midiEventPacket_t ev = {event, (event << 4) | channel, pitch, velocity};
@@ -59,6 +95,12 @@ static inline void sendMidiEvent(uint8_t event, uint8_t channel, uint8_t pitch,
 
 static volatile uint32_t PIN_STATE_SAVE = 0;
 
+/**
+ * @brief check which keys are pressed and send a MIDI event if a state has
+ * has changed. 
+ * The code is designed to run as interrupt routine. It blocks al incoming 
+ * interrupts while running.
+ */
 static void updateMidiState(void) {
     noInterrupts();
     uint32_t current_pin_states = 0;
@@ -83,6 +125,10 @@ static void updateMidiState(void) {
     interrupts();
 }
 
+/**
+ * @brief Set all pins to pullup mode and make sure they can interrupt.
+ * 
+ */
 void setup() {
     noInterrupts();
     for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
@@ -95,11 +141,6 @@ void setup() {
 
 void loop(void) {
     while (true) {
-        // Wait for Interrupt. This should put the arduino Due in sleep mode 
-        // until an interrupt occurs. Saving power. Wakeup from sleep mode for 
-        // The Atmel SAM3/A should be about 10 microseconds. The acceptable 
-        // latency for pedal touch to MIDI event is about 1ms 
-        // (1000 microseconds), so the wakeup time is not problematic.  
         __WFI();
     }
 }
