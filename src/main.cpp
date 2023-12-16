@@ -109,7 +109,8 @@ static void updateMidiState(void) {
         uint8_t pin = PINS_AND_PITCHES[i].pin;
         uint8_t pitch = PINS_AND_PITCHES[i].pitch;
         uint32_t pin_mask = (uint32_t)1 << i;
-        bool current_pin_state = digitalRead(pin);
+        // Input pullup makes pins LOW when the key is pressed.
+        bool current_pin_state = digitalRead(pin) == LOW;
         current_pin_states |= ((uint32_t)current_pin_state << i);
         bool previous_pin_state = previous_pin_states & pin_mask;
         if (previous_pin_state != current_pin_state) {
