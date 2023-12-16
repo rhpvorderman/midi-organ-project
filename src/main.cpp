@@ -120,6 +120,7 @@ static void updateMidiState(void) {
             }
         }    
     }
+    // USB is not realtime. Make sure the event arrives ASAP.
     MidiUSB.flush();
     PIN_STATE_SAVE = current_pin_states;
     interrupts();
