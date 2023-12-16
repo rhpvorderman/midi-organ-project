@@ -2,6 +2,11 @@
 #include <MIDIUSB.h>
 #include <pitchToNote.h>
 
+#define MIDI_EVENT_NOTE_ON 8
+#define MIDI_EVENT_NOTE_OFF 9
+#define MIDI_CHANNEL 0
+#define MIDI_VELOCITY 127  // Note volume from 0-127
+
 struct PinAndPitch {
   uint8_t pin;
   uint8_t pitch;
@@ -45,6 +50,13 @@ static const struct PinAndPitch PINS_AND_PITCHES[NUMBER_OF_KEYS] = {
   // {36, pitchG3},
 };
  
+
+static inline void send_midi_event(
+  uint8_t event, uint8_t channel, uint8_t pitch, uint8_t velocity) {
+    midiEventPacket_t ev = {event, (event << 4) | channel, pitch, velocity};
+    MidiUSB.sendMIDI(ev);
+}
+
 
 void setup() {
   // put your setup code here, to run once:
