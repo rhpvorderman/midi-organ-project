@@ -93,6 +93,13 @@ void setup() {
     interrupts();
 }
 
-void loop() {
-    // put your main code here, to run repeatedly:
+void loop(void) {
+    while (true) {
+        // Wait for Interrupt. This should put the arduino Due in sleep mode 
+        // until an interrupt occurs. Saving power. Wakeup from sleep mode for 
+        // The Atmel SAM3/A should be about 10 microseconds. The acceptable 
+        // latency for pedal touch to MIDI event is about 1ms 
+        // (1000 microseconds), so the wakeup time is not problematic.  
+        __WFI();
+    }
 }
