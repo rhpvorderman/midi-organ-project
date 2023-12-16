@@ -57,7 +57,7 @@ static inline void sendMidiEvent(uint8_t event, uint8_t channel, uint8_t pitch,
     MidiUSB.sendMIDI(ev);
 }
 
-static uint32_t PIN_STATE_SAVE = 0;
+static volatile uint32_t PIN_STATE_SAVE = 0;
 
 static void updateMidiState(void) {
     noInterrupts();
@@ -84,7 +84,13 @@ static void updateMidiState(void) {
 }
 
 void setup() {
-    // put your setup code here, to run once:
+    noInterrupts();
+    for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
+        uint8_t pin = PINS_AND_PITCHES[i].pin;
+        pinMode(pin, INPUT_PULLUP);
+        attachInterrupt(digitalPinToInterrupt(pin),updateMidiState, CHANGE);
+    }
+    interrupts();
 }
 
 void loop() {
