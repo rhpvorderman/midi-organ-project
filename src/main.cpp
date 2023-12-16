@@ -51,12 +51,37 @@ static const struct PinAndPitch PINS_AND_PITCHES[NUMBER_OF_KEYS] = {
 };
  
 
-static inline void send_midi_event(
-  uint8_t event, uint8_t channel, uint8_t pitch, uint8_t velocity) {
+static inline void sendMidiEvent(uint8_t event, uint8_t channel, uint8_t pitch, 
+                                 uint8_t velocity) {
     midiEventPacket_t ev = {event, (event << 4) | channel, pitch, velocity};
     MidiUSB.sendMIDI(ev);
 }
 
+static uint32_t PIN_STATE_SAVE = 0;
+
+static void updateMidiState(void) {
+  noInterrupts();
+  uint32_t current_pin_states = 0;
+  uint32_t previous_pin_states = PIN_STATE_SAVE;
+  for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
+    uint8_t pin = PINS_AND_PITCHES[i].pin;
+    uint8_t pitch = PINS_AND_PITCHES[i].pitch;
+    uint32_t pin_mask = (uint32_t)1 << i;
+    bool current_pin_state = digitalRead(pin);
+    current_pin_states |= ((uint32_t)current_pin_state << i);
+    bool previous_pin_state = previous_pin_states & pin_mask;
+    if (previous_pin_state != current_pin_state) {
+      if (current_pin_state) {
+        sendMidiEvent(MIDI_EVENT_NOTE_ON, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
+      } else {
+        sendMidiEvent(MIDI_EVENT_NOTE_OFF, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
+      }
+    }    
+  }
+  MidiUSB.flush();
+  PIN_STATE_SAVE = current_pin_states;
+  interrupts();
+}
 
 void setup() {
   // put your setup code here, to run once:
