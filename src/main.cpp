@@ -80,8 +80,8 @@ static inline void sendMidiEvent(uint8_t event, uint8_t channel, uint8_t pitch,
     MidiUSB.sendMIDI(ev);
 }
 
-static uint32_t current_pin_states = 0;
-static uint32_t previous_pin_states = 0;
+uint32_t current_pin_states = 0;
+uint32_t previous_pin_states = 0;
 
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -96,34 +96,34 @@ void setup() {
 
 
 void loop(void) {
-    while (true) {
-        previous_pin_states = current_pin_states;
-        current_pin_states = 0;
-        for (uint32_t i=0; i < NUMBER_OF_KEYS; i++) {
-            uint8_t pin = PINS_AND_PITCHES[i].pin;
-            uint8_t pitch = PINS_AND_PITCHES[i].pitch;
-            uint32_t pin_mask = (uint32_t)1 << i;
-            // Input pullup makes pins LOW when the key is pressed.
-            bool current_pin_state = (digitalRead(pin) == LOW);
-            bool previous_pin_state = previous_pin_states & pin_mask;
-            if (previous_pin_state != current_pin_state) {
-                uint8_t midi_event = MIDI_EVENT_NOTE_OFF;
-                if (current_pin_state) {
-                    current_pin_states |= pin_mask;
-                    midi_event = MIDI_EVENT_NOTE_ON;
-                } 
-                sendMidiEvent(midi_event, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
-            }    
-        }
-        if (current_pin_states ^ previous_pin_states) {
-            // If there is any difference, flush so events are sent ASAP.
-            MidiUSB.flush();
-        }
-        if (current_pin_states) {
-            digitalWrite(LED_BUILTIN, LOW);
-        } else {
-            digitalWrite(LED_BUILTIN, HIGH);
-        }
-        delay(1);
+    previous_pin_states = current_pin_states;
+    current_pin_states = 0;
+    for (uint32_t i=0; i < NUMBER_OF_KEYS; i++) {
+        uint8_t pin = PINS_AND_PITCHES[i].pin;
+        uint8_t pitch = PINS_AND_PITCHES[i].pitch;
+        uint32_t pin_mask = (uint32_t)1 << i;
+        // Input pullup makes pins LOW when the key is pressed.
+        bool current_pin_state = (digitalRead(pin) == LOW);
+        bool previous_pin_state = previous_pin_states & pin_mask;
+        if (previous_pin_state != current_pin_state) {
+            uint8_t midi_event = MIDI_EVENT_NOTE_OFF;
+            uint8_t velocity = 0;
+            if (current_pin_state) {
+                current_pin_states |= pin_mask;
+                midi_event = MIDI_EVENT_NOTE_ON;
+                velocity = MIDI_VELOCITY;
+            } 
+            sendMidiEvent(midi_event, MIDI_CHANNEL, pitch, velocity);
+        }    
     }
+    if (current_pin_states ^ previous_pin_states) {
+        // If there is any difference, flush so events are sent ASAP.
+        MidiUSB.flush();
+    }
+    if (current_pin_states) {
+        digitalWrite(LED_BUILTIN, LOW);
+    } else {
+        digitalWrite(LED_BUILTIN, HIGH);
+    }
+    delay(1);
 }
