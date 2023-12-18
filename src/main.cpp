@@ -121,6 +121,11 @@ static void updateMidiState(void) {
             }
         }    
     }
+    if (current_pin_states) {
+        digitalWrite(LED_BUILTIN, LOW);
+    } else {
+        digitalWrite(LED_BUILTIN, HIGH);
+    }
     // USB is not realtime. Make sure the event arrives ASAP.
     MidiUSB.flush();
     PIN_STATE_SAVE = current_pin_states;
@@ -133,6 +138,8 @@ static void updateMidiState(void) {
  */
 void setup() {
     noInterrupts();
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
     for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
         uint8_t pin = PINS_AND_PITCHES[i].pin;
         pinMode(pin, INPUT_PULLUP);
