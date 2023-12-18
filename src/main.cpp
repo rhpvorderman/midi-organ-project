@@ -80,10 +80,9 @@ static inline void sendMidiEvent(uint8_t event, uint8_t channel, uint8_t pitch,
     MidiUSB.sendMIDI(ev);
 }
 
-/**
- * @brief Set all pins to pullup mode and make sure they can interrupt.
- * 
- */
+static uint32_t current_pin_states = 0;
+static uint32_t previous_pin_states = 0;
+
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
@@ -91,27 +90,29 @@ void setup() {
         uint8_t pin = PINS_AND_PITCHES[i].pin;
         pinMode(pin, INPUT_PULLUP);
     }
+    current_pin_states = 0;
+    previous_pin_states = 0;
 }
 
+
 void loop(void) {
-    uint32_t current_pin_states = 0;
     while (true) {
-        uint32_t previous_pin_states = current_pin_states;
+        previous_pin_states = current_pin_states;
         current_pin_states = 0;
         for (uint32_t i=0; i < NUMBER_OF_KEYS; i++) {
             uint8_t pin = PINS_AND_PITCHES[i].pin;
             uint8_t pitch = PINS_AND_PITCHES[i].pitch;
             uint32_t pin_mask = (uint32_t)1 << i;
             // Input pullup makes pins LOW when the key is pressed.
-            bool current_pin_state = digitalRead(pin) == LOW;
+            bool current_pin_state = (digitalRead(pin) == LOW);
             bool previous_pin_state = previous_pin_states & pin_mask;
             if (previous_pin_state != current_pin_state) {
+                uint8_t midi_event = MIDI_EVENT_NOTE_OFF;
                 if (current_pin_state) {
                     current_pin_states |= pin_mask;
-                    sendMidiEvent(MIDI_EVENT_NOTE_ON, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
-                } else {
-                    sendMidiEvent(MIDI_EVENT_NOTE_OFF, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
-                }
+                    midi_event = MIDI_EVENT_NOTE_ON;
+                } 
+                sendMidiEvent(midi_event, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
             }    
         }
         if (current_pin_states ^ previous_pin_states) {
