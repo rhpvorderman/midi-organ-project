@@ -103,8 +103,11 @@ static volatile uint32_t PIN_STATE_SAVE = 0;
  */
 static void updateMidiState(void) {
     noInterrupts();
+    SerialUSB.println("Interrupt registered");
     uint32_t current_pin_states = 0;
     uint32_t previous_pin_states = PIN_STATE_SAVE;
+    SerialUSB.print("previous_pin_states: ");
+    SerialUSB.println(previous_pin_states);
     for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
         uint8_t pin = PINS_AND_PITCHES[i].pin;
         uint8_t pitch = PINS_AND_PITCHES[i].pitch;
@@ -124,6 +127,9 @@ static void updateMidiState(void) {
     // USB is not realtime. Make sure the event arrives ASAP.
     MidiUSB.flush();
     PIN_STATE_SAVE = current_pin_states;
+    SerialUSB.print("Current pint states: ");
+    SerialUSB.println(current_pin_states);
+    SerialUSB.println("Interrupt ended");
     interrupts();
 }
 
@@ -132,6 +138,8 @@ static void updateMidiState(void) {
  * 
  */
 void setup() {
+    SerialUSB.begin(9600);
+    while (!SerialUSB);
     noInterrupts();
     for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
         uint8_t pin = PINS_AND_PITCHES[i].pin;
