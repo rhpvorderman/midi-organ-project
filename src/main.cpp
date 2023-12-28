@@ -30,8 +30,8 @@
 #include <MIDIUSB.h>
 #include <pitchToNote.h>
 
-#define MIDI_EVENT_NOTE_ON 8
-#define MIDI_EVENT_NOTE_OFF 9
+#define MIDI_EVENT_NOTE_ON 9
+#define MIDI_EVENT_NOTE_OFF 8
 #define MIDI_CHANNEL 0
 #define MIDI_VELOCITY 127  // Note volume from 0-127
 
