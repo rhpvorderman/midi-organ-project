@@ -84,6 +84,7 @@ uint32_t current_pin_states = 0;
 uint32_t previous_pin_states = 0;
 
 void setup() {
+    Serial.begin(9600);
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
     for (size_t i=0; i < NUMBER_OF_KEYS; i++) {
@@ -103,19 +104,25 @@ void loop(void) {
         uint8_t pitch = PINS_AND_PITCHES[i].pitch;
         uint32_t pin_mask = (uint32_t)1 << i;
         // Input pullup makes pins LOW when the key is pressed.
+
         bool current_pin_state = (digitalRead(pin) == LOW);
         bool previous_pin_state = previous_pin_states & pin_mask;
+        if (i==0) {
+            Serial.print(previous_pin_state); Serial.print(","); Serial.println(current_pin_state);
+        }
+        current_pin_states |= ((uint32_t)current_pin_state << i);
         if (previous_pin_state != current_pin_state) {
             uint8_t midi_event = MIDI_EVENT_NOTE_OFF;
             uint8_t velocity = 0;
             if (current_pin_state) {
-                current_pin_states |= pin_mask;
                 midi_event = MIDI_EVENT_NOTE_ON;
                 velocity = MIDI_VELOCITY;
             } 
             sendMidiEvent(midi_event, MIDI_CHANNEL, pitch, velocity);
         }    
     }
+    Serial.print("Previous state: "); Serial.println(previous_pin_states);
+    Serial.print("Current state: "); Serial.println(current_pin_states);
     if (current_pin_states ^ previous_pin_states) {
         // If there is any difference, flush so events are sent ASAP.
         MidiUSB.flush();
@@ -125,5 +132,5 @@ void loop(void) {
     } else {
         digitalWrite(LED_BUILTIN, HIGH);
     }
-    delay(1);
+    delay(2000);
 }
