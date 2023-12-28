@@ -117,7 +117,7 @@ static void updateMidiState(void) {
             if (current_pin_state) {
                 sendMidiEvent(MIDI_EVENT_NOTE_ON, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
             } else {
-                sendMidiEvent(MIDI_EVENT_NOTE_OFF, MIDI_CHANNEL, pitch, MIDI_VELOCITY);
+                sendMidiEvent(MIDI_EVENT_NOTE_OFF, MIDI_CHANNEL, pitch, 0);
             }
         }    
     }
